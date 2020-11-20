@@ -3,7 +3,7 @@ const path = require('path')
 const bodyParser = require("body-parser")
 const fs = require('fs')
 const app = express()
-const PORT = 3000;
+var PORT = process.env.PORT || 3000;
 
 var site
 var logged = false
@@ -77,7 +77,7 @@ function sortOut(sortWay) {
     } else {
         sortTab = user_data.sort((a, b) => b.age - a.age);
     }
-    showOutput = `<div style='height: 60px; background-color: #993f9f; width: 100%; text-align: center;'><a href='sort' style='padding:30px;font-size:20px;' >Sortuj</a><a href='gender' style='padding:30px;font-size:20px;'>Płeć</a><a href='show' style='padding:30px;font-size:20px;'>Pokaż</a></div><br> <form method='POST' action='/sort' onchange='this.submit()'>\ <input ${sortWay === '0' ? checked='checked' : ''} default  type='radio' id='rosnaco' name='sortWay' value='0' /><label for='rosnaco'>rosnaco</label>\<input ${sortWay === '1' ? checked='checked' : ''} type='radio' id='malejaco' name='sortWay' value='1' /><label for='malejaco'>malejaco</label>\</form><br />`
+    showOutput = `<div style='height: 60px; background-color: #993f9f; width: 100%; text-align: center;'><a href='sort' style='padding:30px;font-size:20px;' >Sortuj</a><a href='gender' style='padding:30px;font-size:20px;'>Płeć</a><a href='show' style='padding:30px;font-size:20px;'>Pokaż</a></div><br> <form method='POST' action='/sort' onchange='this.submit()'>\ <input ${sortWay === '0' ? checked = 'checked' : ''} default  type='radio' id='rosnaco' name='sortWay' value='0' /><label for='rosnaco'>rosnaco</label>\<input ${sortWay === '1' ? checked = 'checked' : ''} type='radio' id='malejaco' name='sortWay' value='1' /><label for='malejaco'>malejaco</label>\</form><br />`
     showOutput += "<table style='border: 2px solid black; border-collapse: collapse; margin: auto;'>"
     for (i = 0; i < sortTab.length; i++) {
         showOutput += "<tr>"
@@ -125,7 +125,7 @@ app.get('/:site', function (req, res) {
         case 'sort':
         case 'sort.html':
             if (logged) {
-				var sortWay = '0'
+                var sortWay = '0'
                 res.send(sortOut(sortWay))
             } else { res.send('<h1>access denied</h1>') }
             break;
@@ -136,7 +136,7 @@ app.get('/:site', function (req, res) {
                 res.send("<div style='height: 60px; background-color: #993f9f; width: 100%; text-align: center;'><a href='sort' style='padding:30px;font-size:20px;' >Sortuj</a><a href='gender' style='padding:30px;font-size:20px;'>Płeć</a><a href='show' style='padding:30px;font-size:20px;'>Pokaż</a></div><br>" + genderOut())
             } else { res.send('<h1>access denied</h1>') }
             break;
-			
+
         case 'show':
         case 'show.html':
             if (logged) {
@@ -200,14 +200,14 @@ app.post('/register', (req, res) => {
 app.post('/login', (req, res) => {
     var tester = false
     var i = 0
-	
+
     while (true) {
         if (req.body.login === user_data[i].login && req.body.password === user_data[i].password) {
             tester = true
             break
         } else {
             tester = false
-			i++
+            i++
         }
     }
 
