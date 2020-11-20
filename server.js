@@ -75,11 +75,9 @@ function sortOut(sortWay) {
     if (sortWay == 0) {
         sortTab = user_data.sort((a, b) => a.age - b.age);
     } else {
-        sortTab = user_data.sort((a, b) => a.age + b.age);
+        sortTab = user_data.sort((a, b) => b.age - a.age);
     }
-    //id user > wiek <
-    //return "<div style='height: 60px; background-color: #993f9f; width: 100%; text-align: center;'><a href='sort' style='padding:30px;font-size:20px;' >Sortuj</a><a href='gender' style='padding:30px;font-size:20px;'>Płeć</a><a href='show' style='padding:30px;font-size:20px;'>Pokaż</a></div><br> <form method='POST' action='/sort' onchange='this.submit()'>\ <input ${if(sortWay == '0'){checked='checked'}else{''}} default  type='radio' id='rosnaco' name='sortWay' value='0' /><label for='rosnaco'>rosnaco</label>\<input ${if(sortWay == '0'){''}else{checked='checked'}} type='radio' id='malejaco' name='sortWay' value='1' /><label for='malejaco'>malejaco</label>\</form><br />"
-    showOutput = "<div style='height: 60px; background-color: #993f9f; width: 100%; text-align: center;'><a href='sort' style='padding:30px;font-size:20px;' >Sortuj</a><a href='gender' style='padding:30px;font-size:20px;'>Płeć</a><a href='show' style='padding:30px;font-size:20px;'>Pokaż</a></div><br> <form method='POST' action='/sort' onchange='this.submit()'>\ <input ${if(sortWay == '0'){checked='checked'}else{''}} default  type='radio' id='rosnaco' name='sortWay' value='0' /><label for='rosnaco'>rosnaco</label>\<input ${if(sortWay == '0'){''}else{checked='checked'}} type='radio' id='malejaco' name='sortWay' value='1' /><label for='malejaco'>malejaco</label>\</form><br />"
+    showOutput = `<div style='height: 60px; background-color: #993f9f; width: 100%; text-align: center;'><a href='sort' style='padding:30px;font-size:20px;' >Sortuj</a><a href='gender' style='padding:30px;font-size:20px;'>Płeć</a><a href='show' style='padding:30px;font-size:20px;'>Pokaż</a></div><br> <form method='POST' action='/sort' onchange='this.submit()'>\ <input ${sortWay === '0' ? checked='checked' : ''} default  type='radio' id='rosnaco' name='sortWay' value='0' /><label for='rosnaco'>rosnaco</label>\<input ${sortWay === '1' ? checked='checked' : ''} type='radio' id='malejaco' name='sortWay' value='1' /><label for='malejaco'>malejaco</label>\</form><br />`
     showOutput += "<table style='border: 2px solid black; border-collapse: collapse; margin: auto;'>"
     for (i = 0; i < sortTab.length; i++) {
         showOutput += "<tr>"
@@ -127,7 +125,8 @@ app.get('/:site', function (req, res) {
         case 'sort':
         case 'sort.html':
             if (logged) {
-                res.send("<div style='height: 60px; background-color: #993f9f; width: 100%; text-align: center;'><a href='sort' style='padding:30px;font-size:20px;' >Sortuj</a><a href='gender' style='padding:30px;font-size:20px;'>Płeć</a><a href='show' style='padding:30px;font-size:20px;'>Pokaż</a></div><br> <form method='POST' action='/sort' onchange='this.submit()'>\ <input ${if(sortWay == '0'){checked='checked'}else{''}} default  type='radio' id='rosnaco' name='sortWay' value='0' /><label for='rosnaco'>rosnaco</label>\<input ${if(sortWay == '0'){''}else{checked='checked'}} type='radio' id='malejaco' name='sortWay' value='1' /><label for='malejaco'>malejaco</label>\</form><br />")
+				var sortWay = '0'
+                res.send(sortOut(sortWay))
             } else { res.send('<h1>access denied</h1>') }
             break;
 
@@ -137,6 +136,7 @@ app.get('/:site', function (req, res) {
                 res.send("<div style='height: 60px; background-color: #993f9f; width: 100%; text-align: center;'><a href='sort' style='padding:30px;font-size:20px;' >Sortuj</a><a href='gender' style='padding:30px;font-size:20px;'>Płeć</a><a href='show' style='padding:30px;font-size:20px;'>Pokaż</a></div><br>" + genderOut())
             } else { res.send('<h1>access denied</h1>') }
             break;
+			
         case 'show':
         case 'show.html':
             if (logged) {
@@ -144,8 +144,6 @@ app.get('/:site', function (req, res) {
 
             } else { res.send('<h1>access denied</h1>') }
             break;
-
-
 
         case 'register':
         case 'register.html':
@@ -156,9 +154,6 @@ app.get('/:site', function (req, res) {
         case 'login.html':
             res.sendFile(path.join(__dirname + '/static/pages/login.html'))
             break;
-
-
-
 
         default:
             res.send('Podana strona nie istnieje')
@@ -194,9 +189,7 @@ app.post('/register', (req, res) => {
             req.body.student = 'on'
         }
 
-
-
-        user_data.push(req.body.id)
+        user_data.push(req.body)
     } else {
         res.send('Użytkownik o podanym loginie już istnieje!')
     }
@@ -206,15 +199,15 @@ app.post('/register', (req, res) => {
 
 app.post('/login', (req, res) => {
     var tester = false
-
-
-    i = 0
-    while (i < user_data.length) {
+    var i = 0
+	
+    while (true) {
         if (req.body.login === user_data[i].login && req.body.password === user_data[i].password) {
             tester = true
-            i = user_data.length
+            break
         } else {
             tester = false
+			i++
         }
     }
 
@@ -230,8 +223,6 @@ app.post('/login', (req, res) => {
 
 app.post('/admin', (req, res) => {
     var tester = false
-
-
 
     if (logged) {
         var div = document.getElementById('divID');
